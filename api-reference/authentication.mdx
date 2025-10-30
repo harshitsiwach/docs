@@ -1,0 +1,184 @@
+---
+title: "Authentication API"
+description: "API reference for gx402 SDK authentication methods"
+---
+
+## Authentication API
+
+The gx402 SDK provides secure authentication methods for user verification and session management.
+
+## authenticate()
+
+Authenticate a user with the gx402 service.
+
+### JavaScript/WebGL
+```javascript
+gx402.authenticate(userId, token)
+  .then(result => {
+    console.log('Authentication successful:', result);
+  })
+  .catch(error => {
+    console.error('Authentication failed:', error);
+  });
+```
+
+#### Parameters
+- `userId` (string): Unique user identifier
+- `token` (string): Authentication token
+
+#### Returns
+- `Promise<Object>`: Authentication result with properties:
+  - `success` (boolean): Authentication status
+  - `userId` (string): Authenticated user ID
+  - `expiresAt` (number): Token expiration timestamp
+  - `permissions` (Array): User permissions
+
+### Unity (C#)
+```csharp
+Gx402Manager.Authenticate(userId, token, (success, result) => {
+    if (success) {
+        Debug.Log("Authentication successful: " + result.userId);
+    } else {
+        Debug.LogError("Authentication failed");
+    }
+});
+```
+
+#### Parameters
+- `string userId`: Unique user identifier
+- `string token`: Authentication token
+- `System.Action<bool, AuthResult> callback`: Result callback
+
+#### Callback Parameters
+- `bool success`: Authentication status
+- `AuthResult result`: Authentication result object
+
+### Unreal Engine (C++)
+```cpp
+UGx402Manager::Authenticate("user-id", "auth-token", 
+    [](bool bSuccess, const FGx402AuthResult& Result) {
+        if (bSuccess) {
+            UE_LOG(LogTemp, Log, TEXT("Authentication successful"));
+        } else {
+            UE_LOG(LogTemp, Error, TEXT("Authentication failed"));
+        }
+    });
+```
+
+#### Parameters
+- `const FString& UserId`: Unique user identifier
+- `const FString& Token`: Authentication token
+- `TFunction<void(bool, const FGx402AuthResult&)> Callback`: Result callback
+
+### Mobile Platforms
+
+#### iOS (Swift)
+```swift
+Gx402Manager.shared.authenticate(userId: "user-id", token: "token") { result in
+    switch result {
+    case .success(let authData):
+        print("Authentication successful: $authData)")
+    case .failure(let error):
+        print("Authentication failed: $error)")
+    }
+}
+```
+
+#### Android (Kotlin)
+```kotlin
+Gx402SDK.authenticate("user-id", "token") { success, data, error ->
+    if (success) {
+        Log.d("gx402", "Authentication successful: $data")
+    } else {
+        Log.e("gx402", "Authentication failed: $error")
+    }
+}
+```
+
+## setAuthToken()
+
+Set an authentication token for subsequent requests.
+
+### JavaScript
+```javascript
+gx402.setAuthToken(token);
+```
+
+#### Parameters
+- `token` (string): Authentication token
+
+## getAuthToken()
+
+Get the current authentication token.
+
+### JavaScript
+```javascript
+const token = gx402.getAuthToken();
+```
+
+#### Returns
+- `string|null`: Current authentication token or null if not authenticated
+
+## logout()
+
+Logout the current user.
+
+### JavaScript
+```javascript
+gx402.logout()
+  .then(() => {
+    console.log('User logged out');
+  });
+```
+
+### Unity (C#)
+```csharp
+Gx402Manager.Logout(() => {
+    Debug.Log("User logged out");
+});
+```
+
+## refreshAuthToken()
+
+Refresh the authentication token.
+
+### JavaScript
+```javascript
+gx402.refreshAuthToken()
+  .then(newToken => {
+    console.log('Token refreshed:', newToken);
+  })
+  .catch(error => {
+    console.error('Token refresh failed:', error);
+  });
+```
+
+#### Returns
+- `Promise<string>`: New authentication token
+
+## Events
+
+### on('auth-changed')
+Triggered when authentication state changes.
+
+```javascript
+gx402.on('auth-changed', (authState) => {
+  console.log('Auth state changed:', authState);
+});
+```
+
+### on('token-expired')
+Triggered when the authentication token expires.
+
+```javascript
+gx402.on('token-expired', () => {
+  console.log('Token expired, please re-authenticate');
+});
+```
+
+## Error Codes
+
+- `AUTH_INVALID_CREDENTIALS`: Invalid user ID or token
+- `AUTH_TOKEN_EXPIRED`: Authentication token has expired
+- `AUTH_NETWORK_ERROR`: Network error during authentication
+- `AUTH_RATE_LIMITED`: Too many authentication attempts

@@ -1,0 +1,339 @@
+---
+title: "Getting Started with All Platforms"
+description: "Complete guide to setting up gx402 SDK on all supported platforms"
+icon: "layers"
+---
+
+# Getting Started with All Platforms
+
+The gx402 SDK supports multiple platforms for gaming, each with their own setup process but sharing the same core x402 functionality. This guide walks you through getting started on each platform.
+
+## Choose Your Platform
+
+<Tabs>
+<TabItem value="unity" label="Unity">
+
+### Unity Setup
+
+#### Installation
+1. Open your Unity project
+2. Go to `Window` > `Package Manager`
+3. Click the `+` button and select "Add package from git URL..."
+4. Enter: `https://github.com/gx402/unity-sdk.git`
+5. Click "Add" to install the package
+
+#### Basic Integration
+```csharp
+using Gx402;
+using UnityEngine;
+
+public class Gx402Setup : MonoBehaviour
+{
+    void Start()
+    {
+        // Initialize the gx402 SDK
+        Gx402Manager.Initialize("YOUR_API_KEY");
+        
+        // Configure settings
+        Gx402Manager.Configure(new Gx402Config
+        {
+            EnableRealtimeSync = true,
+            LogLevel = Gx402LogLevel.Debug
+        });
+        
+        Debug.Log("gx402 SDK initialized in Unity!");
+    }
+}
+```
+
+#### Platform-Specific Features
+- Full integration with Unity's game loop
+- Physics engine compatibility
+- UI system integration
+- Asset bundle support with x402 processing
+
+</TabItem>
+
+<TabItem value="unreal" label="Unreal Engine">
+
+### Unreal Engine Setup
+
+#### Plugin Installation
+1. Download the plugin from [GitHub Releases](https://github.com/gx402/unreal-sdk/releases)
+2. Create an `Plugins` folder in your project directory if it doesn't exist
+3. Copy the plugin folder to `YourProject/Plugins/gx402-sdk`
+4. Restart the Unreal Editor
+5. Enable the plugin in Edit > Plugins > Project > gx402 SDK
+
+#### Basic Integration
+```cpp
+#include "Gx402SDK.h"
+
+void AMyGameMode::StartPlay()
+{
+    Super::StartPlay();
+    
+    // Configure gx402
+    FGx402Config Config;
+    Config.ApiKey = TEXT("YOUR_API_KEY");
+    Config.bEnableRealtimeSync = true;
+    Config.LogLevel = EGx402LogLevel::Debug;
+    
+    // Initialize the SDK
+    UGx402Manager::Initialize(Config);
+    
+    UE_LOG(LogTemp, Log, TEXT("gx402 SDK initialized in Unreal Engine!"));
+}
+```
+
+#### Platform-Specific Features
+- Blueprint node integration
+- Native C++ performance
+- Rendering pipeline optimization
+- Platform-specific feature support
+
+</TabItem>
+
+<TabItem value="webgl" label="WebGL">
+
+### WebGL Setup
+
+#### Installation
+Using NPM:
+```bash
+npm install @gx402/web-sdk
+```
+
+Or via CDN:
+```html
+<script src="https://unpkg.com/@gx402/web-sdk/dist/gx402.min.js"></script>
+```
+
+#### Basic Integration
+```javascript
+import { Gx402SDK } from '@gx402/web-sdk';
+
+// Initialize the SDK
+const gx402 = new Gx402SDK({
+  apiKey: 'YOUR_API_KEY',
+  enableRealtimeSync: true,
+  debug: true
+});
+
+// Wait for initialization
+await gx402.init();
+console.log('gx402 SDK initialized in WebGL!');
+```
+
+#### Platform-Specific Features
+- WebAssembly optimization
+- Cross-browser compatibility
+- Progressive web app support
+- Web socket real-time sync
+
+</TabItem>
+
+<TabItem value="mobile" label="Mobile">
+
+### Mobile Setup
+
+#### iOS Installation (CocoaPods)
+```ruby
+pod 'Gx402SDK'
+```
+
+#### Android Installation (Gradle)
+```gradle
+implementation 'com.gx402:sdk:1.0.0'
+```
+
+#### Basic Integration
+
+**iOS (Swift):**
+```swift
+import Gx402SDK
+
+let config = Gx402Config(
+    apiKey: "YOUR_API_KEY",
+    environment: .production
+)
+
+Gx402Manager.shared.initialize(with: config) { success, error in
+    if success {
+        print("gx402 SDK initialized on iOS!")
+    }
+}
+```
+
+**Android (Kotlin):**
+```kotlin
+val config = Gx402Config.Builder()
+    .setApiKey("YOUR_API_KEY")
+    .setEnvironment(Gx402Config.ENVIRONMENT_PRODUCTION)
+    .build()
+
+Gx402SDK.initialize(this, config) { success, error ->
+    if (success) {
+        Log.d("gx402", "SDK initialized on Android!")
+    }
+}
+```
+
+#### Platform-Specific Features
+- Native performance optimization
+- Battery-conscious operation
+- Offline-first capabilities
+- Push notification integration
+
+</TabItem>
+
+<TabItem value="telegram" label="Telegram">
+
+### Telegram Setup
+
+#### Installation
+```bash
+npm install @gx402/telegram-sdk
+```
+
+#### Basic Integration
+```javascript
+import { Gx402TelegramSDK } from '@gx402/telegram-sdk';
+import { Telegram } from '@twa-dev/sdk';
+
+// Initialize Telegram Web Apps first
+const tg = window.Telegram.WebApp;
+
+// Initialize gx402 SDK with Telegram context
+const gx402 = new Gx402TelegramSDK({
+  apiKey: 'YOUR_API_KEY',
+  telegramWebApp: tg,
+  enableRealtimeSync: true
+});
+
+await gx402.init();
+console.log('gx402 SDK initialized in Telegram!');
+```
+
+#### Platform-Specific Features
+- Telegram mini app integration
+- Native UI component support
+- Haptic feedback integration
+- Social sharing capabilities
+
+</TabItem>
+
+<TabItem value="farcaster" label="Farcaster">
+
+### Farcaster Setup
+
+#### Installation
+```bash
+npm install @gx402/farcaster-sdk
+```
+
+#### Basic Integration
+```javascript
+import { Gx402FarcasterSDK } from '@gx402/farcaster-sdk';
+
+const gx402 = new Gx402FarcasterSDK({
+  apiKey: 'YOUR_API_KEY',
+  enableRealtimeSync: true
+});
+
+await gx402.init();
+console.log('gx402 SDK initialized in Farcaster!');
+```
+
+#### Platform-Specific Features
+- Farcaster frame integration
+- Cast synchronization
+- Web3 identity support
+- Decentralized social features
+
+</TabItem>
+</Tabs>
+
+## Core Concepts (Same Across All Platforms)
+
+Once you've set up your platform, the core concepts remain consistent:
+
+### Authentication
+```javascript
+// Works similarly across all platforms
+await gx402.authenticate('user-id', 'auth-token');
+```
+
+### x402 Processing
+```javascript
+// Process game data with x402 functionality
+const result = await gx402.processX402Data(gameData);
+```
+
+### Real-time Sync
+```javascript
+// Sync data across platforms
+gx402.subscribe('game-state', (data) => {
+  updateGameState(data);
+});
+
+await gx402.sync('game-state', gameState);
+```
+
+## Development Workflow
+
+### 1. Environment Setup
+- Create a project in your [gx402 Dashboard](https://gx402.com/dashboard)
+- Get your API keys for development and production
+- Install the SDK for your chosen platform
+
+### 2. Basic Integration
+- Initialize the SDK early in your game startup
+- Authenticate users if needed
+- Test basic x402 functionality
+
+### 3. Feature Development
+- Add specific x402 features to your gameplay
+- Implement real-time synchronization
+- Add platform-specific enhancements
+
+### 4. Testing
+- Test on target devices/emulators
+- Verify cross-platform sync works
+- Check offline capabilities
+
+### 5. Deployment
+- Switch to production API keys
+- Optimize performance settings
+- Monitor in production
+
+## Best Practices
+
+### Cross-Platform Considerations
+- Design features that work well on all platforms
+- Account for different performance capabilities
+- Handle platform-specific user interface patterns
+- Plan for different input methods
+
+### Performance Optimization
+- Minimize network calls during gameplay
+- Use appropriate sync intervals
+- Optimize for mobile network conditions
+- Implement efficient data structures
+
+### Security
+- Securely store API keys
+- Implement proper authentication
+- Validate all client data on server
+- Protect against cheating
+
+## Next Steps
+
+Now that you've set up the gx402 SDK on your chosen platform:
+
+1. **Explore Core Features**: Check out our [Features documentation](/features) to understand x402 capabilities
+2. **Follow Tutorials**: Complete our [Hello World tutorial](/tutorials/hello-world) to build your first x402-powered game
+3. **Dive Deeper**: Read platform-specific guides for advanced functionality
+4. **Join Community**: Connect with other developers in our [Discord community](https://discord.gg/gx402)
+
+The gx402 SDK is designed to make cross-platform game development simpler while providing powerful x402 functionality. Start with basic integration and gradually add more features as needed for your game!

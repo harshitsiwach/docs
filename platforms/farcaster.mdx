@@ -1,0 +1,189 @@
+---
+title: "Farcaster Integration"
+description: "Integrate gx402 SDK with Farcaster applications"
+icon: "hashtag"
+---
+
+# Farcaster Integration
+
+The gx402 SDK provides deep integration with Farcaster, enabling x402 functionality for decentralized social gaming experiences.
+
+## Installation
+
+### NPM Package
+
+```bash
+npm install @gx402/farcaster-sdk
+```
+
+### Farcaster Frame Setup
+
+```javascript
+import { Gx402FarcasterSDK } from '@gx402/farcaster-sdk';
+import { Button } from '@farcaster/core';
+
+// Initialize the SDK
+const gx402 = new Gx402FarcasterSDK({
+  apiKey: 'your-api-key',
+  farcasterContext: context, // From Farcaster frame context
+  enableRealtimeSync: true
+});
+```
+
+## Basic Setup
+
+### Frame Integration
+
+```javascript
+// In your Farcaster frame
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const state = url.searchParams.get('state'); // Farcaster state parameter
+  
+  // Initialize gx402 SDK with Farcaster context
+  const gx402 = new Gx402FarcasterSDK({
+    apiKey: process.env.GX402_API_KEY,
+    state: state
+  });
+
+  // Process with x402 functionality
+  const frameContent = await gx402.generateFrame({
+    type: 'game',
+    content: 'Play with x402 features!'
+  });
+
+  return new Response(frameContent, {
+    headers: {
+      'Content-Type': 'text/html'
+    }
+  });
+}
+```
+
+## Core Features
+
+### Farcaster Authentication
+```javascript
+// Authenticate users via Farcaster
+gx402.authenticateFarcasterUser(farcasterSignature)
+  .then((user) => {
+    console.log('Authenticated Farcaster user:', user.fid);
+  })
+  .catch((error) => {
+    console.error('Authentication failed:', error);
+  });
+```
+
+### x402 Functionality with Farcaster
+```javascript
+// Process data with both x402 and Farcaster context
+const result = await gx402.processX402WithFarcaster({
+  fid: farcasterUser.fid,
+  gameData: yourGameData,
+  castHash: currentCastHash
+});
+```
+
+### Social Features
+```javascript
+// Create Farcaster casts with x402 data
+const castResult = await gx402.createFarcasterCast({
+  text: 'Just played with gx402 functionality!',
+  embeds: ['https://gx402-game.com/result/123'],
+  x402Metadata: {
+    gameplay: true,
+    featuresUsed: ['sync', 'realtime']
+  }
+});
+```
+
+## Farcaster Frames
+
+### Interactive Frames
+```javascript
+// Create interactive game frames with x402 functionality
+const frame = {
+  image: await gx402.generateGameImage({
+    gameState: currentGameState,
+    x402Enhanced: true
+  }),
+  buttons: [
+    {
+      label: 'Play Now',
+      action: 'post'
+    },
+    {
+      label: 'View Leaderboard',
+      action: 'post',
+      target: '/leaderboard'
+    }
+  ]
+};
+```
+
+### State Management
+```javascript
+// Manage game state with Farcaster context
+const gameState = await gx402.manageGameState({
+  fid: farcasterUser.fid,
+  state: previousState,
+  action: userAction,
+  x402Processed: true
+});
+```
+
+## Warpcast Integration
+
+### Warpcast-Specific Features
+```javascript
+// Optimize content for Warpcast display
+gx402.configureWarpcastDisplay({
+  aspectRatio: '1:1',
+  colors: {
+    primary: '#16A34A',
+    background: '#ffffff'
+  }
+});
+```
+
+### Channel Integration
+```javascript
+// Post to specific Farcaster channels
+gx402.postToChannel({
+  channelId: 'gx402-games',
+  content: {
+    text: 'New game result with x402 features!',
+    embeds: [gameResultUrl]
+  }
+});
+```
+
+## Best Practices
+
+- Respect Farcaster's content policies
+- Implement proper rate limiting
+- Use efficient data structures for on-chain operations
+- Consider gas costs for blockchain interactions
+- Follow Farcaster development best practices
+- Test frames across different clients
+
+## Configuration
+
+### Farcaster-Specific Settings
+```javascript
+const config = {
+  apiKey: 'your-api-key',
+  enableRealtimeSync: true,
+  farcasterSettings: {
+    enableFrames: true,
+    useHub: true,
+    postToFeed: true
+  }
+};
+```
+
+## Resources
+
+- [Farcaster SDK API Reference](/api-reference/farcaster-sdk)
+- [Farcaster Examples](https://github.com/gx402/farcaster-examples)
+- [Farcaster Development Guide](/platforms/farcaster/development)

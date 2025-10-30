@@ -1,0 +1,85 @@
+---
+title: "Unity Integration"
+description: "Integrate gx402 SDK with Unity game engine"
+icon: "unity"
+---
+
+# Unity Integration
+
+The gx402 SDK provides seamless integration with the Unity game engine, bringing all the power of x402 functionality to your Unity projects.
+
+## Installation
+
+To install the gx402 SDK in your Unity project, follow these steps:
+
+### Using Unity Package Manager
+
+1. Open your Unity project
+2. Go to `Window` > `Package Manager`
+3. Click the `+` button in the top-left corner
+4. Select "Add package from git URL..."
+5. Enter the gx402 SDK repository URL: `https://github.com/gx402/unity-sdk.git`
+6. Click "Add"
+
+### Manual Installation
+
+1. Download the latest release from the [gx402 Unity SDK releases page](https://github.com/gx402/unity-sdk/releases)
+2. Extract the package in your Unity project's `Assets` folder
+3. Unity will automatically import the SDK
+
+## Basic Setup
+
+After installation, you need to initialize the SDK in your game:
+
+```csharp
+using Gx402;
+
+public class GameManager : MonoBehaviour
+{
+    void Start()
+    {
+        // Initialize the gx402 SDK
+        Gx402Manager.Initialize("your-api-key");
+        
+        // Configure x402 functionality
+        Gx402Manager.Configure(new Gx402Config
+        {
+            EnableRealtimeSync = true,
+            LogLevel = Gx402LogLevel.Debug
+        });
+    }
+}
+```
+
+## Core Features
+
+### Authentication
+```csharp
+// Authenticate user
+Gx402Manager.Authenticate("user-id", "authentication-token", (success, error) => {
+    if (success) {
+        Debug.Log("Authentication successful!");
+    } else {
+        Debug.LogError($"Authentication failed: {error}");
+    }
+});
+```
+
+### x402 Functionality
+```csharp
+// Use x402 features in your game
+var x402Result = Gx402Manager.ProcessX402Data(gameData);
+```
+
+## Best Practices
+
+- Initialize the SDK as early as possible in your game
+- Always check for network connectivity before making API calls
+- Handle authentication errors gracefully
+- Use the Unity SDK's built-in logging for debugging
+
+## Resources
+
+- [Unity SDK API Reference](/api-reference/unity-sdk)
+- [Unity Example Project](https://github.com/gx402/unity-examples)
+- [Troubleshooting Guide](/platforms/unity/troubleshooting)

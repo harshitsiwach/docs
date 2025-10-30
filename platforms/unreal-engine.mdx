@@ -1,0 +1,118 @@
+---
+title: "Unreal Engine Integration"
+description: "Integrate gx402 SDK with Unreal Engine"
+icon: "unreal"
+---
+
+# Unreal Engine Integration
+
+The gx402 SDK provides native integration with Unreal Engine, allowing you to leverage x402 functionality in your Unreal projects with full C++ and Blueprint support.
+
+## Installation
+
+### Plugin Installation
+
+1. Download the gx402 Unreal Engine plugin from the [Releases page](https://github.com/gx402/unreal-sdk/releases)
+2. Create an `Plugins` folder in your project directory if it doesn't exist
+3. Copy the plugin folder to `YourProject/Plugins/gx402-sdk`
+4. Restart the Unreal Editor
+5. Enable the plugin in Edit > Plugins > Project > gx402 SDK
+
+### C++ Integration
+
+If you prefer to integrate the SDK directly:
+
+1. Add the gx402 library files to your project's `Source` directory
+2. Include `gx402-sdk.h` in your module build file
+3. Link against the appropriate platform libraries
+
+## Basic Setup
+
+### C++ Example
+
+```cpp
+// In your game mode or player controller header file
+#include "Gx402SDK.h"
+
+UCLASS()
+class YOURGAME_API AYourGameMode : public AGameModeBase
+{
+    GENERATED_BODY()
+
+public:
+    virtual void StartPlay() override;
+
+private:
+    void InitializeGx402();
+};
+
+// In the implementation file
+void AYourGameMode::StartPlay()
+{
+    Super::StartPlay();
+    InitializeGx402();
+}
+
+void AYourGameMode::InitializeGx402()
+{
+    // Configure the SDK
+    FGx402Config Config;
+    Config.ApiKey = TEXT("your-api-key");
+    Config.bEnableRealtimeSync = true;
+    
+    // Initialize the SDK
+    UGx402Manager::Initialize(Config);
+}
+```
+
+### Blueprint Integration
+
+1. Create a new Blueprint that extends from GameModeBase
+2. In the Event Graph, call "Initialize Gx402 SDK" node during BeginPlay
+3. Connect to the success/failure events to handle initialization
+
+## Core Features
+
+### Authentication
+```cpp
+UGx402Manager::Authenticate("user-id", "auth-token", 
+    [](bool bSuccess, const FString& ErrorMessage) {
+        if (bSuccess) {
+            UE_LOG(LogTemp, Log, TEXT("gx402 Authentication successful"));
+        } else {
+            UE_LOG(LogTemp, Error, TEXT("gx402 Authentication failed: %s"), *ErrorMessage);
+        }
+    });
+```
+
+### x402 Functionality
+```cpp
+// Process game data with x402 functionality
+FGx402Result Result = UGx402Manager::ProcessX402Data(GameData);
+```
+
+## Supported Platforms
+
+The Unreal Engine integration supports all major platforms:
+- Windows
+- macOS
+- Linux
+- iOS
+- Android
+- PlayStation
+- Xbox
+- Nintendo Switch
+
+## Best Practices
+
+- Initialize the SDK early in your game lifecycle
+- Handle platform-specific considerations during deployment
+- Use Unreal's blueprint node system for non-programmer integration
+- Test thoroughly across all target platforms
+- Monitor SDK performance in profiling tools
+
+## Resources
+
+- [Unreal Engine SDK API Reference](/api-reference/unreal-sdk)
+- [Unreal Engine Example Project](https://github.com/gx402/unreal-examples)
+- [Platform-Specific Setup](/platforms/unreal-engine/platforms)
