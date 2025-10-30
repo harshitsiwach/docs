@@ -12,152 +12,57 @@ The gx402 SDK provides full JavaScript support for WebGL applications, enabling 
 
 ### NPM Package
 
+Install the gx402 Web3 SDK using npm or yarn:
+
 ```bash
-npm install @gx402/web-sdk
+npm install @gx402/sdk
+# or
+yarn add @gx402/sdk
 ```
 
-### CDN
+## Minimal Implementation Example (Telegram Mini App)
 
-Include the SDK directly in your HTML:
-
-```html
-<script src="https://unpkg.com/@gx402/web-sdk/dist/gx402.min.js"></script>
-```
-
-### ES6 Import
+Here's a basic example of how to integrate the gx402 SDK into your WebGL or web-based project, specifically for a Telegram Mini App, to handle in-game purchases.
 
 ```javascript
-import { Gx402SDK } from '@gx402/web-sdk';
-// or
-import * as Gx402 from '@gx402/web-sdk';
-```
+import { GX402Client } from '@gx402/sdk';
 
-## Basic Setup
-
-### Module Import
-
-```javascript
-import { Gx402SDK } from '@gx402/web-sdk';
-
-// Initialize the SDK
-const gx402 = new Gx402SDK({
-  apiKey: 'your-api-key',
-  environment: 'production', // or 'development'
-  enableRealtimeSync: true
+const gx402 = new GX402Client({
+    receiverAddress: 'OxYourWalletAddress',
+    network: 'base',
+    // Auto-detects Telegram environment
+    walletProvider: 'telegram',
 });
 
-// Wait for initialization
-gx402.init()
-  .then(() => {
-    console.log('gx402 SDK initialized successfully');
-  })
-  .catch((error) => {
-    console.error('Failed to initialize gx402 SDK:', error);
-  });
-```
+// Buy boost in game
+async function buyBoost() {
+    try {
+        const tx = await gx402.purchase({
+            itemId: 'speed_boost_10min',
+            price: '0.25', // $0.25
+            currency: 'USDC',
+        });
+        console.log('Payment successful:', tx.hash);
+        applyBoost('speed', 600); // 10 minutes
+    } catch (error) {
+        console.error('Payment failed:', error);
+        showToast('Payment failed. Please try again.');
+    }
+}
 
-### Global (CDN)
-
-```javascript
-// When using the global script, the SDK is available as
-const gx402 = new window.gx402.Gx402SDK({
-  apiKey: 'your-api-key'
-});
-
-gx402.init().then(() => {
-  // SDK ready to use
-});
+// Placeholder functions - implement your actual game logic here
+function applyBoost(type, duration) { console.log(`Applying ${type} boost for ${duration} seconds.`); }
+function showToast(message) { console.log(`Toast: ${message}`); }
 ```
 
 ## Core Features
 
-### Authentication
-```javascript
-// Authenticate user
-gx402.authenticate('user-id', 'auth-token')
-  .then((result) => {
-    console.log('Authentication successful:', result);
-  })
-  .catch((error) => {
-    console.error('Authentication failed:', error);
-  });
-```
+*   **Framework-agnostic**: Works with popular frameworks like React, Vue, and Svelte.
+*   **Telegram Mini App optimized**: Specifically designed for seamless integration with Telegram Mini Apps.
+*   **Coinbase Smart Wallet integration**: Supports Coinbase Smart Wallet for enhanced user experience.
+*   **Farcaster Frame actions support**: Enables interactive experiences within Farcaster Frames.
+*   **NPM package distribution**: Easily integrate into your project using npm.
 
-### x402 Functionality
-```javascript
-// Process data with x402 functionality
-const x402Result = await gx402.processX402Data({
-  gameData: yourGameData,
-  options: {
-    sync: true,
-    encrypt: true
-  }
-});
-```
-
-### Real-time Synchronization
-```javascript
-// Subscribe to real-time updates
-gx402.subscribe('game-state', (data) => {
-  console.log('Received game state update:', data);
-});
-
-// Send real-time data
-gx402.publish('game-state', {
-  playerId: '123',
-  position: { x: 100, y: 200 },
-  health: 100
-});
-```
-
-## WebGL-Specific Optimizations
-
-### Memory Management
-```javascript
-// Optimize for WebGL memory constraints
-gx402.configure({
-  memoryLimit: '100MB',
-  garbageCollection: true
-});
-```
-
-### Performance Monitoring
-```javascript
-// Monitor performance
-gx402.on('performance', (metrics) => {
-  console.log('Performance metrics:', metrics);
-});
-```
-
-## Supported Browsers
-
-- Chrome 80+
-- Firefox 75+
-- Safari 14+
-- Edge 80+
-- Opera 67+
-
-## Web Workers Support
-
-For heavy computations, the SDK supports Web Workers:
-
-```javascript
-// Initialize SDK in a Web Worker
-const worker = new Worker('gx402-worker.js');
-
-worker.postMessage({
-  command: 'initialize',
-  apiKey: 'your-api-key'
-});
-```
-
-## Best Practices
-
-- Minimize network requests by batching operations
-- Use local caching for frequently accessed data
-- Implement proper error handling for network failures
-- Monitor bundle size impact
-- Test across different browsers and devices
 
 ## Resources
 

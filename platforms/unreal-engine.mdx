@@ -10,85 +10,44 @@ The gx402 SDK provides native integration with Unreal Engine, allowing you to le
 
 ## Installation
 
-### Plugin Installation
+To install the gx402 SDK in your Unreal Engine project, you have two primary options:
 
-1. Download the gx402 Unreal Engine plugin from the [Releases page](https://github.com/gx402/unreal-sdk/releases)
-2. Create an `Plugins` folder in your project directory if it doesn't exist
-3. Copy the plugin folder to `YourProject/Plugins/gx402-sdk`
-4. Restart the Unreal Editor
-5. Enable the plugin in Edit > Plugins > Project > gx402 SDK
+### Download from Unreal Marketplace
 
-### C++ Integration
+1.  Open the Unreal Engine Marketplace from within the Unreal Editor or your web browser.
+2.  Search for "GX402 Payment SDK".
+3.  Follow the instructions to download and add the plugin to your project.
 
-If you prefer to integrate the SDK directly:
+### Clone Source
 
-1. Add the gx402 library files to your project's `Source` directory
-2. Include `gx402-sdk.h` in your module build file
-3. Link against the appropriate platform libraries
+1.  Open your terminal or command prompt.
+2.  Navigate to your project's `Plugins` directory (create it if it doesn't exist).
+3.  Clone the gx402 Unreal SDK repository: `git clone https://github.com/gx402/unreal-sdk.git`
+4.  Copy the cloned `gx402-sdk` folder into your project's `Plugins` directory.
+5.  Restart the Unreal Editor and enable the plugin in `Edit` > `Plugins`.
 
-## Basic Setup
+## Minimal Implementation Example (Blueprint)
 
-### C++ Example
+Here's a basic example of how to integrate the gx402 SDK into your Unreal Engine project using Blueprints to handle in-game purchases.
 
-```cpp
-// In your game mode or player controller header file
-#include "Gx402SDK.h"
-
-UCLASS()
-class YOURGAME_API AYourGameMode : public AGameModeBase
-{
-    GENERATED_BODY()
-
-public:
-    virtual void StartPlay() override;
-
-private:
-    void InitializeGx402();
-};
-
-// In the implementation file
-void AYourGameMode::StartPlay()
-{
-    Super::StartPlay();
-    InitializeGx402();
-}
-
-void AYourGameMode::InitializeGx402()
-{
-    // Configure the SDK
-    FGx402Config Config;
-    Config.ApiKey = TEXT("your-api-key");
-    Config.bEnableRealtimeSync = true;
-    
-    // Initialize the SDK
-    UGx402Manager::Initialize(Config);
-}
-```
-
-### Blueprint Integration
-
-1. Create a new Blueprint that extends from GameModeBase
-2. In the Event Graph, call "Initialize Gx402 SDK" node during BeginPlay
-3. Connect to the success/failure events to handle initialization
-
-## Core Features
-
-### Authentication
-```cpp
-UGx402Manager::Authenticate("user-id", "auth-token", 
-    [](bool bSuccess, const FString& ErrorMessage) {
-        if (bSuccess) {
-            UE_LOG(LogTemp, Log, TEXT("gx402 Authentication successful"));
-        } else {
-            UE_LOG(LogTemp, Error, TEXT("gx402 Authentication failed: %s"), *ErrorMessage);
-        }
-    });
-```
-
-### x402 Functionality
-```cpp
-// Process game data with x402 functionality
-FGx402Result Result = UGx402Manager::ProcessX402Data(GameData);
+```blueprint
+[Begin Play]
+    ↓
+[Create GX402 Client]
+    ↓
+    Receiver Address: OxYourAddress
+    Network: Base
+    ↓
+[On Button Click: Buy Sword]
+    ↓
+[Call: GX402 Purchase (Async)]
+    ↓
+    Item ID: "legendary_sword"
+    Price: 2.50
+    Currency: USDC
+    ↓
+[On Success]  ←  [Grant Item]  ←  [Show Success UI]
+[On Failure]  ←  [Show Error UI]
 ```
 
 ## Supported Platforms

@@ -12,8 +12,12 @@ The gx402 SDK provides seamless integration with Telegram mini apps, bringing x4
 
 ### NPM Package
 
+Install the gx402 SDK using npm or yarn:
+
 ```bash
-npm install @gx402/telegram-sdk
+npm install @gx402/sdk
+# or
+yarn add @gx402/sdk
 ```
 
 ### Telegram Mini App Setup
@@ -22,136 +26,49 @@ npm install @gx402/telegram-sdk
 2. Set up your mini app using the Telegram Mini Apps platform
 3. Install the gx402 SDK in your project
 
-## Basic Setup
+## Minimal Implementation Example
 
-### Initialize SDK
+Here's a basic example of how to integrate the gx402 SDK into your Telegram Mini App to handle in-game purchases.
 
 ```javascript
-import { Gx402TelegramSDK } from '@gx402/telegram-sdk';
-import { Telegram } from '@twa-dev/sdk';
+import { GX402Client } from '@gx402/sdk';
 
-// Initialize Telegram Web Apps first
-const tg = window.Telegram.WebApp;
-
-// Initialize gx402 SDK
-const gx402 = new Gx402TelegramSDK({
-  apiKey: 'your-api-key',
-  telegramWebApp: tg,
-  enableRealtimeSync: true
+const gx402 = new GX402Client({
+    receiverAddress: 'OxYourWalletAddress',
+    network: 'base',
+    // Auto-detects Telegram environment
+    walletProvider: 'telegram',
 });
 
-// Initialize the SDK
-gx402.init()
-  .then(() => {
-    console.log('gx402 Telegram SDK initialized');
-    // SDK is ready to use
-  })
-  .catch((error) => {
-    console.error('Failed to initialize SDK:', error);
-  });
+// Buy boost in game
+async function buyBoost() {
+    try {
+        const tx = await gx402.purchase({
+            itemId: 'speed_boost_10min',
+            price: '0.25', // $0.25
+            currency: 'USDC',
+        });
+        console.log('Payment successful:', tx.hash);
+        applyBoost('speed', 600); // 10 minutes
+    } catch (error) {
+        console.error('Payment failed:', error);
+        showToast('Payment failed. Please try again.');
+    }
+}
+
+// Placeholder functions - implement your actual game logic here
+function applyBoost(type, duration) { console.log(`Applying ${type} boost for ${duration} seconds.`); }
+function showToast(message) { console.log(`Toast: ${message}`); }
 ```
 
 ## Core Features
 
-### User Authentication
-```javascript
-// Automatically authenticate using Telegram user data
-gx402.authenticateTelegramUser()
-  .then((authResult) => {
-    console.log('User authenticated:', authResult.userId);
-  })
-  .catch((error) => {
-    console.error('Authentication failed:', error);
-  });
-```
+*   **Framework-agnostic**: Works with popular frameworks like React, Vue, and Svelte.
+*   **Telegram Mini App optimized**: Specifically designed for seamless integration with Telegram Mini Apps.
+*   **Coinbase Smart Wallet integration**: Supports Coinbase Smart Wallet for enhanced user experience.
+*   **Farcaster Frame actions support**: Enables interactive experiences within Farcaster Frames.
+*   **NPM package distribution**: Easily integrate into your project using npm.
 
-### x402 Functionality in Telegram
-```javascript
-// Process game data with x402 functionality
-const result = await gx402.processX402Data({
-  telegramUserId: tg.initDataUnsafe.user?.id,
-  gameData: yourGameData,
-  options: {
-    syncWithTelegram: true
-  }
-});
-```
-
-### Telegram-Specific Features
-```javascript
-// Access Telegram-specific functionality
-const telegramData = gx402.getTelegramData();
-
-// Share game results to Telegram
-gx402.shareToTelegram({
-  text: 'Check out my high score!',
-  gameUrl: 'https://t.me/yourbot/yourapp'
-});
-```
-
-## Telegram Mini App Components
-
-### Using Telegram UI Components
-```javascript
-// Show a Telegram-specific alert
-gx402.showTgAlert({
-  title: 'Game Notification',
-  message: 'New x402 event occurred!',
-  button: 'OK'
-});
-
-// Use Telegram's main button
-gx402.setupMainButton({
-  text: 'Play Now',
-  color: '#16A34A',
-  onClick: () => {
-    // Trigger x402 functionality
-    gx402.processGameplay();
-  }
-});
-```
-
-## Web App Integration
-
-### Haptic Feedback
-```javascript
-// Use Telegram's haptic feedback with x402 events
-gx402.on('x402-event', () => {
-  tg.HapticFeedback.impactOccurred('medium');
-});
-```
-
-### Biometric Authentication
-```javascript
-// Optional biometric verification for sensitive x402 operations
-const biometricResult = await gx402.requestBiometricAuth({
-  prompt: 'Verify your identity to access x402 features'
-});
-```
-
-## Best Practices
-
-- Always respect Telegram's privacy guidelines
-- Implement proper error handling for network failures
-- Optimize for mobile performance
-- Use Telegram's native UI components where possible
-- Follow Telegram's design guidelines
-- Test the mini app on different devices
-
-## Configuration
-
-### Telegram-Specific Settings
-```javascript
-const config = {
-  apiKey: 'your-api-key',
-  enableRealtimeSync: true,
-  telegramSettings: {
-    enableHaptic: true,
-    useNativeUI: true,
-    shareResults: true
-  }
-};
-```
 
 ## Resources
 

@@ -53,189 +53,62 @@ dependencies {
 </dependency>
 ```
 
-## Basic Setup
+## React Native / Expo Installation
 
-### iOS (Swift)
+Install the gx402 SDK for React Native using npm or yarn:
 
-```swift
-import Gx402SDK
-
-class GameViewController: UIViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        // Initialize gx402 SDK
-        let config = Gx402Config(
-            apiKey: "your-api-key",
-            environment: .production
-        )
-        
-        Gx402Manager.shared.initialize(
-            with: config,
-            completion: { success, error in
-                if success {
-                    print("gx402 SDK initialized successfully")
-                } else {
-                    print("Failed to initialize gx402 SDK: $error?.localizedDescription ?? "Unknown error")")
-                }
-            }
-        )
-    }
-}
+```bash
+npm install @gx402/react-native
+# or
+yarn add @gx402/react-native
 ```
 
-### Android (Kotlin)
+### iOS Additional Setup
 
-```kotlin
-import com.gx402.sdk.Gx402SDK
-import com.gx402.sdk.models.Gx402Config
+After installing the npm package, navigate to your `ios` directory and install pods:
 
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        
-        // Initialize gx402 SDK
-        val config = Gx402Config.Builder()
-            .setApiKey("your-api-key")
-            .setEnvironment(Gx402Config.ENVIRONMENT_PRODUCTION)
-            .build()
-        
-        Gx402SDK.initialize(this, config) { success, error ->
-            if (success) {
-                Log.d("gx402", "SDK initialized successfully")
-            } else {
-                Log.e("gx402", "SDK initialization failed: $error")
-            }
-        }
+```bash
+cd ios && pod install
+```
+
+## Basic Setup
+
+### React Native (JavaScript/TypeScript)
+
+```javascript
+import { GX402Client } from '@gx402/react-native';
+
+const gx402 = new GX402Client({
+    receiverAddress: 'OxYourWalletAddress',
+    network: 'base',
+    // Auto-detects mobile environment
+});
+
+// Buy boost in game
+async function buyBoost() {
+    try {
+        const tx = await gx402.purchase({
+            itemId: 'speed_boost_10min',
+            price: '0.25', // $0.25
+            currency: 'USDC',
+        });
+        console.log('Payment successful:', tx.hash);
+        applyBoost('speed', 600); // 10 minutes
+    } catch (error) {
+        console.error('Payment failed:', error);
+        showToast('Payment failed. Please try again.');
     }
 }
+
+// Placeholder functions - implement your actual game logic here
+function applyBoost(type, duration) { console.log(`Applying ${type} boost for ${duration} seconds.`); }
+function showToast(message) { console.log(`Toast: ${message}`); }
 ```
 
 ## Core Features
 
-### Authentication
-```swift
-// iOS
-Gx402Manager.shared.authenticate(userId: "user-id", token: "auth-token") { result in
-    switch result {
-    case .success(let authData):
-        print("Authentication successful: $authData)")
-    case .failure(let error):
-        print("Authentication failed: $error)")
-    }
-}
-```
-
-```kotlin
-// Android
-Gx402SDK.authenticate("user-id", "auth-token") { success, data, error ->
-    if (success) {
-        Log.d("gx402", "Authentication successful: $data")
-    } else {
-        Log.e("gx402", "Authentication failed: $error")
-    }
-}
-```
-
-### x402 Functionality
-```swift
-// Process data with x402 functionality
-let x402Result = Gx402Manager.shared.processX402Data(gameData)
-```
-
-```kotlin
-// Process data with x402 functionality
-val x402Result = Gx402SDK.processX402Data(gameData)
-```
-
-## Mobile-Specific Features
-
-### Push Notifications
-```swift
-// iOS - Enable push notifications with x402 events
-Gx402Manager.shared.enablePushNotifications { success in
-    if success {
-        print("Push notifications enabled")
-    }
-}
-```
-
-```kotlin
-// Android - Enable push notifications
-Gx402SDK.enablePushNotifications(this) { success ->
-    if (success) {
-        Log.d("gx402", "Push notifications enabled")
-    }
-}
-```
-
-### Background Processing
-```swift
-// iOS - Handle background x402 operations
-Gx402Manager.shared.handleBackgroundTasks = true
-```
-
-```kotlin
-// Android - Handle background services
-Gx402SDK.enableBackgroundProcessing(true)
-```
-
-## Permissions
-
-### iOS Permissions (Info.plist)
-```xml
-<key>NSLocationWhenInUseUsageDescription</key>
-<string>This app uses location for x402 features</string>
-<key>NSCameraUsageDescription</key>
-<string>This app uses camera for x402 features</string>
-<key>NSMicrophoneUsageDescription</key>
-<string>This app uses microphone for x402 features</string>
-```
-
-### Android Permissions (AndroidManifest.xml)
-```xml
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-```
-
-## Performance Optimization
-
-### iOS Performance
-```swift
-// Optimize for mobile performance
-let mobileConfig = Gx402MobileConfig(
-    performanceMode: .balanced,
-    memoryLimit: 50 * 1024 * 1024, // 50MB
-    backgroundSync: true
-)
-
-Gx402Manager.shared.applyMobileConfig(mobileConfig)
-```
-
-### Android Performance
-```kotlin
-val mobileConfig = Gx402MobileConfig.Builder()
-    .setPerformanceMode(Gx402MobileConfig.PERFORMANCE_BALANCED)
-    .setMemoryLimit(50 * 1024 * 1024) // 50MB
-    .setBackgroundSync(true)
-    .build()
-
-Gx402SDK.applyMobileConfig(mobileConfig)
-```
-
-## Best Practices
-
-- Optimize for battery life and network usage
-- Implement proper error handling for network failures
-- Use efficient data structures to minimize memory usage
-- Follow platform-specific UI/UX guidelines
-- Test thoroughly on different device models
-- Handle app lifecycle events properly
-
-## Resources
-
-- [iOS SDK API Reference](/api-reference/ios-sdk)
-- [Android SDK API Reference](/api-reference/android-sdk)
-- [Mobile Example Projects](https://github.com/gx402/mobile-examples)
-- [Performance Optimization Guide](/platforms/mobile/performance)
+*   **iOS native (Swift)** with SwiftUI components.
+*   **Android native (Kotlin)** with Jetpack Compose.
+*   **React Native/Expo compatibility**.
+*   **Deep linking** for wallet connections.
+*   **App Store/Play Store compliant**.

@@ -10,477 +10,94 @@ In this tutorial, you'll create your first application using the gx402 SDK. We'l
 
 ## What You'll Build
 
-A simple counter game where players can increment a number, with real-time synchronization across all players.
+A simple web page with a button that triggers an in-game purchase using the gx402 SDK.
 
 ## Prerequisites
 
-- Basic knowledge of your chosen platform (JavaScript, C#, C++, etc.)
-- Node.js (for WebGL), Unity (for Unity), Unreal Engine (for Unreal), etc.
-- Your gx402 API key
+*   Basic knowledge of JavaScript and HTML.
+*   Node.js and npm (for installing the gx402 SDK).
+*   Your gx402 API key (optional for this basic example, but good practice).
 
 ## Step 1: Set Up Your Project
 
-### For WebGL/JavaScript
 First, create a new directory and initialize a project:
 
 ```bash
-mkdir gx402-hello-world
-cd gx402-hello-world
+mkdir gx402-purchase-example
+cd gx402-purchase-example
 npm init -y
-npm install @gx402/web-sdk
+npm install @gx402/sdk
 ```
 
-Create an `index.html` file:
+Create an `index.html` file with a button to trigger the purchase:
 
 ```html
 <!DOCTYPE html>
 <html>
 <head>
-    <title>gx402 Hello World</title>
+    <title>gx402 Purchase Example</title>
 </head>
 <body>
-    <h1>gx402 Counter Game</h1>
-    <div id="counter">0</div>
-    <button id="increment">Increment</button>
-    <button id="reset">Reset</button>
-    <div id="status">Initializing...</div>
+    <h1>Buy a Legendary Sword!</h1>
+    <button id="buyButton">Buy Legendary Sword (0.50 USDC)</button>
+    <p id="status">Click the button to make a purchase.</p>
     
     <script src="main.js"></script>
 </body>
 </html>
 ```
 
-### For Unity
-1. Create a new Unity project
-2. Install the gx402 SDK via Package Manager
-3. Create a new scene with UI elements for the counter
-
-### For Unreal Engine
-1. Create a new Unreal Engine project
-2. Install the gx402 plugin
-3. Create UI with UMG or create C++ classes
-
 ## Step 2: Initialize the SDK
 
-Create a `main.js` file for the web version:
+Create a `main.js` file and initialize the gx402 SDK:
 
 ```javascript
-import { Gx402SDK } from '@gx402/web-sdk';
+import { GX402Client } from '@gx402/sdk';
 
-// Initialize the SDK
-const gx402 = new Gx402SDK({
-  apiKey: 'YOUR_API_KEY_HERE',
-  enableRealtimeSync: true,
-  debug: true
+const gx402 = new GX402Client({
+    receiverAddress: 'OxYourWalletAddress', // Replace with your game's wallet address
+    network: 'base',
+    // Other configurations like facilitatorUrl can be added here
 });
 
-// DOM elements
-const counterElement = document.getElementById('counter');
-const incrementButton = document.getElementById('increment');
-const resetButton = document.getElementById('reset');
+const buyButton = document.getElementById('buyButton');
 const statusElement = document.getElementById('status');
 
-// Initialize the SDK
-gx402.init()
-  .then(() => {
-    statusElement.textContent = 'Connected to gx402!';
-    startGame();
-  })
-  .catch(error => {
-    statusElement.textContent = `Error: ${error.message}`;
-  });
+statusElement.textContent = 'SDK Initialized. Ready to purchase.';
 ```
 
-## Step 3: Implement Basic Counter Functionality
+## Step 3: Implement Basic Purchase Functionality
 
-Add the game logic to your main.js:
+Add an event listener to the buy button to trigger the `gx402.purchase` function:
 
 ```javascript
-// Current game state
-let gameState = {
-  counter: 0
-};
-
-// Start the game
-async function startGame() {
-  // Set up button event listeners
-  incrementButton.addEventListener('click', async () => {
-    // Increment counter using x402 functionality
-    const result = await incrementCounter();
-    console.log('Counter incremented to', result.counter);
-  });
-  
-  resetButton.addEventListener('click', async () => {
-    // Reset counter using x402 functionality
-    const result = await resetCounter();
-    console.log('Counter reset to', result.counter);
-  });
-  
-  // Load initial state
-  await loadGameState();
-}
-
-// Increment the counter with x402 processing
-async function incrementCounter() {
-  // Update local state
-  gameState.counter += 1;
-  
-  // Process with x402 functionality
-  const processed = await gx402.processX402Data({
-    action: 'increment',
-    currentCounter: gameState.counter
-  });
-  
-  // Update game state and UI
-  gameState.counter = processed.result || gameState.counter;
-  updateUI();
-  
-  // Sync state across platforms
-  await syncGameState();
-  
-  return gameState;
-}
-
-// Reset the counter with x402 processing
-async function resetCounter() {
-  // Update local state
-  gameState.counter = 0;
-  
-  // Process with x402 functionality
-  const processed = await gx402.processX402Data({
-    action: 'reset',
-    currentCounter: gameState.counter
-  });
-  
-  // Update game state and UI
-  gameState.counter = processed.result || gameState.counter;
-  updateUI();
-  
-  // Sync state across platforms
-  await syncGameState();
-  
-  return gameState;
-}
-
-// Update the UI with current state
-function updateUI() {
-  counterElement.textContent = gameState.counter;
-}
-```
-
-## Step 4: Add Real-time Sync
-
-Add synchronization functionality:
-
-```javascript
-// Subscribe to game state updates from other players
-function subscribeToUpdates() {
-  gx402.subscribe('game-state', (data) => {
-    if (data.playerId !== 'local-player') { // Don't update for local changes
-      console.log('Received remote update:', data);
-      gameState = { ...data.state };
-      updateUI();
-    }
-  });
-}
-
-// Sync current game state
-async function syncGameState() {
-  await gx402.sync('game-state', {
-    state: gameState,
-    playerId: 'local-player',
-    timestamp: Date.now()
-  });
-}
-
-// Load initial game state
-async function loadGameState() {
-  try {
-    // Try to load existing state
-    const queryResult = await gx402.query('game-state', {
-      orderBy: { timestamp: 'desc' },
-      limit: 1
-    });
-    
-    if (queryResult.length > 0) {
-      gameState = queryResult[0].state;
-      console.log('Loaded game state:', gameState);
-    } else {
-      console.log('Starting fresh game state');
-    }
-    
-    updateUI();
-    subscribeToUpdates();
-  } catch (error) {
-    console.error('Error loading game state:', error);
-  }
-}
-```
-
-## Step 5: Add x402 Enhancement
-
-Add some special x402 functionality to make the counter more interesting:
-
-```javascript
-// Enhanced increment with x402 features
-async function incrementCounter() {
-  // Update local state
-  gameState.counter += 1;
-  
-  // Process with enhanced x402 functionality
-  const x402Params = {
-    action: 'increment',
-    value: gameState.counter,
-    metadata: {
-      eventType: 'counter-increment',
-      platform: 'web',
-      timestamp: Date.now()
-    }
-  };
-  
-  const processed = await gx402.processX402Data({
-    ...x402Params,
-    x402Features: ['validation', 'enhancement', 'analytics']
-  });
-  
-  // Apply any x402 enhancements
-  gameState.counter = processed.enhancedValue || processed.result || gameState.counter;
-  
-  // Add special effects for certain numbers
-  if (gameState.counter % 10 === 0) {
-    statusElement.textContent = `Achievement! Counter reached ${gameState.counter} with x402!`;
-    // Add special x402 effect
-    applyX402Effect();
-  }
-  
-  updateUI();
-  await syncGameState();
-  
-  return gameState;
-}
-
-// Apply visual effects when x402 features are active
-function applyX402Effect() {
-  counterElement.style.animation = 'pulse 0.5s';
-  setTimeout(() => {
-    counterElement.style.animation = '';
-  }, 500);
-}
-```
-
-## Step 6: Run Your Application
-
-For the web version, serve your HTML file:
-
-```bash
-# Install a simple server
-npm install -g http-server
-
-# Serve your project
-http-server
-```
-
-Visit `http://localhost:8080` (or similar) to see your counter game with x402 functionality!
-
-## Platform-Specific Enhancements
-
-### Unity Version
-For Unity, you'd create similar functionality using C#:
-
-```csharp
-using UnityEngine;
-using UnityEngine.UI;
-using Gx402;
-
-public class Gx402HelloWorld : MonoBehaviour
-{
-    public Text counterText;
-    public Button incrementButton;
-    public Button resetButton;
-    
-    private int counter = 0;
-    
-    void Start()
-    {
-        Gx402Manager.Initialize("YOUR_API_KEY");
-        Gx402Manager.Configure(new Gx402Config {
-            EnableRealtimeSync = true
+buyButton.addEventListener('click', async () => {
+    statusElement.textContent = 'Processing purchase...';
+    try {
+        const tx = await gx402.purchase({
+            itemId: "legendary_sword",
+            price: "0.50", // $0.50 USDC
+            currency: "USDC",
+            metadata: { userId: "player123", sessionId: "abc" }
         });
-        
-        incrementButton.onClick.AddListener(IncrementCounter);
-        resetButton.onClick.AddListener(ResetCounter);
+        statusElement.textContent = `Purchase successful! Transaction Hash: ${tx.hash}`;
+        console.log('Purchase successful:', tx);
+    } catch (error) {
+        statusElement.textContent = `Purchase failed: ${error.message}`;
+        console.error('Purchase failed:', error);
     }
-    
-    async void IncrementCounter()
-    {
-        counter++;
-        counterText.text = counter.ToString();
-        
-        // Process with x402
-        var result = await Gx402Manager.ProcessX402Data(counter);
-        counter = (int)result;
-        
-        // Sync across platforms
-        await Gx402Manager.Sync("game-state", new { counter = counter });
-    }
-    
-    async void ResetCounter()
-    {
-        counter = 0;
-        counterText.text = counter.ToString();
-        
-        // Process with x402
-        var result = await Gx402Manager.ProcessX402Data(counter);
-        counter = (int)result;
-        
-        // Sync across platforms
-        await Gx402Manager.Sync("game-state", new { counter = counter });
-    }
-}
+});
 ```
 
 ## What You've Learned
 
 In this tutorial, you've learned how to:
-- Initialize the gx402 SDK in your project
-- Process game data with x402 functionality
-- Sync game state across platforms
-- Subscribe to real-time updates
-- Apply x402 enhancements to gameplay
+*   Set up a basic web project.
+*   Initialize the gx402 SDK.
+*   Implement a simple in-game purchase using `gx402.purchase`.
 
 ## Next Steps
 
-- Explore the [Platform Guides](/platforms) for detailed platform-specific instructions
-- Check out the [API Reference](/api-reference) for complete method documentation
-- Try the [Advanced Tutorials](/tutorials/advanced) for more complex features
-- Join the [Community](/community) to connect with other developers
-
-## Complete Code Example
-
-Here's the complete JavaScript example for reference:
-
-```javascript
-import { Gx402SDK } from '@gx402/web-sdk';
-
-// Initialize the SDK
-const gx402 = new Gx402SDK({
-  apiKey: 'YOUR_API_KEY_HERE',
-  enableRealtimeSync: true,
-  debug: true
-});
-
-// DOM elements
-const counterElement = document.getElementById('counter');
-const incrementButton = document.getElementById('increment');
-const resetButton = document.getElementById('reset');
-const statusElement = document.getElementById('status');
-
-// Current game state
-let gameState = {
-  counter: 0
-};
-
-// Initialize the SDK
-gx402.init()
-  .then(() => {
-    statusElement.textContent = 'Connected to gx402!';
-    startGame();
-  })
-  .catch(error => {
-    statusElement.textContent = `Error: ${error.message}`;
-  });
-
-// Start the game
-async function startGame() {
-  // Set up button event listeners
-  incrementButton.addEventListener('click', async () => {
-    const result = await incrementCounter();
-    console.log('Counter incremented to', result.counter);
-  });
-  
-  resetButton.addEventListener('click', async () => {
-    const result = await resetCounter();
-    console.log('Counter reset to', result.counter);
-  });
-  
-  // Load initial state
-  await loadGameState();
-}
-
-// Increment the counter with x402 processing
-async function incrementCounter() {
-  gameState.counter += 1;
-  
-  const processed = await gx402.processX402Data({
-    action: 'increment',
-    currentCounter: gameState.counter
-  });
-  
-  gameState.counter = processed.result || gameState.counter;
-  updateUI();
-  
-  await syncGameState();
-  return gameState;
-}
-
-// Reset the counter with x402 processing
-async function resetCounter() {
-  gameState.counter = 0;
-  
-  const processed = await gx402.processX402Data({
-    action: 'reset',
-    currentCounter: gameState.counter
-  });
-  
-  gameState.counter = processed.result || gameState.counter;
-  updateUI();
-  
-  await syncGameState();
-  return gameState;
-}
-
-// Update the UI with current state
-function updateUI() {
-  counterElement.textContent = gameState.counter;
-}
-
-// Subscribe to game state updates from other players
-function subscribeToUpdates() {
-  gx402.subscribe('game-state', (data) => {
-    if (data.playerId !== 'local-player') {
-      gameState = { ...data.state };
-      updateUI();
-    }
-  });
-}
-
-// Sync current game state
-async function syncGameState() {
-  await gx402.sync('game-state', {
-    state: gameState,
-    playerId: 'local-player',
-    timestamp: Date.now()
-  });
-}
-
-// Load initial game state
-async function loadGameState() {
-  try {
-    const queryResult = await gx402.query('game-state', {
-      orderBy: { timestamp: 'desc' },
-      limit: 1
-    });
-    
-    if (queryResult.length > 0) {
-      gameState = queryResult[0].state;
-    }
-    
-    updateUI();
-    subscribeToUpdates();
-  } catch (error) {
-    console.error('Error loading game state:', error);
-  }
-}
-```
-
-Now you have a working example that demonstrates the core features of the gx402 SDK!
+*   Explore the [Platform Guides](/platforms) for detailed platform-specific instructions.
+*   Check out the [API Reference](/api-reference) for complete method documentation.
+*   Join the [Community](/community) to connect with other developers.

@@ -13,58 +13,12 @@ The gx402 SDK API provides developers with access to powerful x402 functionality
 
 ## Authentication
 
-All API requests require authentication using your API key. Include your API key in the SDK initialization:
+All API requests require authentication using your API Key. Include your API Key in the `X-GX402-API-Key` header of your requests.
 
-```javascript
-const gx402 = new Gx402SDK({
-  apiKey: 'your-api-key'
-});
+```
+X-GX402-API-Key: YOUR_API_KEY
 ```
 
-## Base URLs
+## Base URL
 
-- Production: `https://api.gx402.com/v1`
-- Development: `https://dev-api.gx402.com/v1`
-
-## SDK Methods
-
-The SDK provides the following core methods:
-
-### Core Methods
-- `initialize()` - Initialize the SDK
-- `authenticate()` - Authenticate users
-- `processX402Data()` - Process data with x402 functionality
-- `sync()` - Synchronize data across platforms
-- `subscribe()` - Subscribe to real-time updates
-
-### Platform-Specific Methods
-Each platform SDK includes additional methods optimized for that platform.
-
-## Error Handling
-
-The SDK uses standard error handling patterns:
-
-```javascript
-try {
-  const result = await gx402.processX402Data(data);
-} catch (error) {
-  console.error('gx402 error:', error.code, error.message);
-}
-```
-
-## Rate Limits
-
-API requests are rate-limited to ensure service availability:
-- Standard requests: 100 per minute
-- Data sync operations: 50 per minute
-- Authentication requests: 20 per minute
-
-## Resources
-
-For platform-specific API references:
-- [Unity SDK API](/api-reference/unity-sdk)
-- [Unreal Engine SDK API](/api-reference/unreal-sdk)
-- [WebGL SDK API](/api-reference/webgl-sdk)
-- [Mobile SDK API](/api-reference/mobile-sdk)
-- [Telegram SDK API](/api-reference/telegram-sdk)
-- [Farcaster SDK API](/api-reference/farcaster-sdk)
+`https://api.gx402.io/v1`

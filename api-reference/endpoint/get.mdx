@@ -1,104 +1,25 @@
 ---
-title: "GET Endpoints"
-description: "Documentation for GET endpoints in gx402 API"
+title: "Verify Payment"
+description: "Documentation for the Verify Payment GET endpoint in gx402 API"
 ---
 
-# GET Endpoints
+# Verify Payment
 
-Documentation for GET endpoints in the gx402 API.
-
-## Get Player Data
-
-Retrieve player information and associated data.
+This endpoint allows you to verify the status of a payment within the gx402 system.
 
 ### Endpoint
 ```
-GET /v1/players/{playerId}
-```
-
-### Path Parameters
-- `playerId` (string, required): Unique identifier for the player
-
-### Query Parameters
-- `includeStats` (boolean, optional): Include player statistics (default: false)
-- `includeInventory` (boolean, optional): Include player inventory (default: false)
-
-### Request Example
-```javascript
-const response = await gx402.api.get('/players/player-123', {
-  params: {
-    includeStats: true,
-    includeInventory: false
-  }
-});
+GET /payments/{paymentId}
 ```
 
 ### Response
+
 ```json
 {
-  "id": "player-123",
-  "name": "Player Name",
-  "createdAt": "2023-01-01T00:00:00Z",
-  "lastActive": "2023-12-01T10:30:00Z",
-  "stats": {
-    "level": 15,
-    "score": 15420,
-    "xp": 154200
-  }
-}
-```
-
-## Get Game State
-
-Retrieve current game state for a specific game or player.
-
-### Endpoint
-```
-GET /v1/games/{gameId}/state
-```
-
-### Path Parameters
-- `gameId` (string, required): Unique identifier for the game
-
-### Query Parameters
-- `playerId` (string, optional): Filter state for specific player
-- `includeTimestamps` (boolean, optional): Include timestamps in response (default: true)
-
-### Response
-```json
-{
-  "gameId": "game-456",
-  "state": {
-    "players": [
-      {
-        "id": "player-123",
-        "position": { "x": 100, "y": 200 },
-        "health": 100,
-        "score": 1500
-      }
-    ],
-    "entities": [],
-    "environment": {}
-  },
-  "timestamp": "2023-12-01T10:30:00Z"
-}
-```
-
-## Get Sync Status
-
-Check the synchronization status of data.
-
-### Endpoint
-```
-GET /v1/sync/status
-```
-
-### Response
-```json
-{
-  "status": "synced",
-  "lastSync": "2023-12-01T10:29:45Z",
-  "pendingOperations": 0,
-  "connection": "connected"
+  "paymentId": "uuid",
+  "status": "completed",
+  "txHash": "0x...",
+  "blockNumber": 12345,
+  "timestamp": "2026-01-15T10:30:00Z"
 }
 ```

@@ -1,129 +1,42 @@
 ---
-title: "POST Endpoints"
-description: "Documentation for POST endpoints in gx402 API"
+title: "Create Payment"
+description: "Documentation for the Create Payment POST endpoint in gx402 API"
 ---
 
-# POST Endpoints
+# Create Payment
 
-Documentation for POST endpoints in the gx402 API.
-
-## Create Player
-
-Register a new player in the system.
+This endpoint allows you to initiate a new payment within the gx402 system.
 
 ### Endpoint
 ```
-POST /v1/players
+POST /payments
 ```
 
 ### Request Body
+
 ```json
 {
-  "name": "Player Name",
-  "externalId": "platform-specific-id",
-  "platform": "unity|unreal|webgl|mobile|telegram|farcaster",
+  "itemId": "string",
+  "price": "decimal",
+  "currency": "USDC",
+  "playerWallet": "0x...",
+  "developerWallet": "0x...",
+  "network": "base",
   "metadata": {
-    "level": 1,
-    "score": 0
+    // ...
   }
-}
-```
-
-### Request Example
-```javascript
-const newPlayer = await gx402.api.post('/players', {
-  name: "New Player",
-  externalId: "unity-player-789",
-  platform: "unity",
-  metadata: {
-    level: 1,
-    initialScore: 0
-  }
-});
-```
-
-### Response
-```json
-{
-  "id": "player-789",
-  "name": "New Player",
-  "createdAt": "2023-12-01T10:30:00Z",
-  "status": "active"
-}
-```
-
-## Process x402 Data
-
-Submit data for processing through x402 functionality.
-
-### Endpoint
-```
-POST /v1/x402/process
-```
-
-### Request Body
-```json
-{
-  "data": {},
-  "options": {
-    "feature": "validation|enhancement|analytics",
-    "sync": true,
-    "encrypt": true
-  }
-}
-```
-
-### Request Example
-```javascript
-const processedData = await gx402.api.post('/x402/process', {
-  data: {
-    eventType: "player-move",
-    playerId: "player-123",
-    position: { x: 150, y: 250 }
-  },
-  options: {
-    feature: "validation",
-    sync: true
-  }
-});
-```
-
-### Response
-```json
-{
-  "result": {},
-  "processed": true,
-  "validation": {
-    "valid": true,
-    "reason": "valid-move"
-  }
-}
-```
-
-## Sync Game State
-
-Submit game state for synchronization across platforms.
-
-### Endpoint
-```
-POST /v1/sync/state
-```
-
-### Request Body
-```json
-{
-  "gameId": "game-456",
-  "state": {},
-  "playerId": "player-123",
-  "timestamp": "2023-12-01T10:30:00Z"
 }
 ```
 
 ### Response
+
 ```json
 {
-  "syncId": "sync-789",
-  "status": "queued",
-  "estimatedCompletion": "2023-12-01T10:30:01Z"
+  "paymentId": "uuid",
+  "status": "pending",
+  "signatureRequired": true,
+  "signaturePayload": {
+    // ...
+  }
 }
 ```

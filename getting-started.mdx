@@ -16,41 +16,75 @@ The gx402 SDK supports multiple platforms for gaming, each with their own setup 
 ### Unity Setup
 
 #### Installation
-1. Open your Unity project
-2. Go to `Window` > `Package Manager`
-3. Click the `+` button and select "Add package from git URL..."
-4. Enter: `https://github.com/gx402/unity-sdk.git`
-5. Click "Add" to install the package
 
-#### Basic Integration
+To install the gx402 SDK in your Unity project, you have two primary options:
+
+##### Via Unity Package Manager (Git URL)
+
+1.  Open your Unity project.
+2.  Go to `Window` > `Package Manager`.
+3.  Click the `+` button in the top-left corner.
+4.  Select "Add package from git URL...".
+5.  Enter the gx402 SDK repository URL: `https://github.com/gx402/unity-sdk.git`.
+6.  Click "Add".
+
+##### Via Unity Asset Store
+
+1.  Open the Unity Asset Store from within Unity or your web browser.
+2.  Search for "GX402 Payment SDK".
+3.  Follow the instructions to download and import the package into your project.
+
+#### Minimal Implementation Example
+
+Here's a basic example of how to integrate the gx402 SDK into your Unity project to handle in-game purchases.
+
 ```csharp
-using Gx402;
+using GX402;
 using UnityEngine;
 
-public class Gx402Setup : MonoBehaviour
+public class GameStore : MonoBehaviour
 {
+    private GX402Client client;
+
     void Start()
     {
-        // Initialize the gx402 SDK
-        Gx402Manager.Initialize("YOUR_API_KEY");
-        
-        // Configure settings
-        Gx402Manager.Configure(new Gx402Config
-        {
-            EnableRealtimeSync = true,
-            LogLevel = Gx402LogLevel.Debug
-        });
-        
-        Debug.Log("gx402 SDK initialized in Unity!");
+        client = new GX402Client(
+            receiverAddress: "OxYourWalletAddress",
+            network: Network.Base,
+            facilitatorUrl: "https://api.gx402.io"
+        );
     }
+
+    public async void BuyItem(string itemId, decimal price)
+    {
+        try
+        {
+            var result = await client.Purchase(new PurchaseRequest
+            {
+                ItemId = itemId,
+                Price = price,
+                Currency = "USDC",
+                Metadata = new { userId = GetUserId() }
+            });
+
+            // Payment successful!
+            GrantItemToPlayer(itemId);
+            ShowNotification($"Purchased {itemId}!");
+        }
+        catch (GX402Exception ex)
+        {
+            Debug.LogError($"Payment failed: {ex.Message}");
+            ShowErrorDialog(ex.UserFriendlyMessage);
+        }
+    }
+
+    // Placeholder methods - implement your actual game logic here
+    private string GetUserId() { return "player123"; }
+    private void GrantItemToPlayer(string itemId) { Debug.Log($"Granting {itemId} to player."); }
+    private void ShowNotification(string message) { Debug.Log($"Notification: {message}"); }
+    private void ShowErrorDialog(string message) { Debug.LogError($"Error Dialog: {message}"); }
 }
 ```
-
-#### Platform-Specific Features
-- Full integration with Unity's game loop
-- Physics engine compatibility
-- UI system integration
-- Asset bundle support with x402 processing
 
 </TabItem>
 
@@ -58,39 +92,47 @@ public class Gx402Setup : MonoBehaviour
 
 ### Unreal Engine Setup
 
-#### Plugin Installation
-1. Download the plugin from [GitHub Releases](https://github.com/gx402/unreal-sdk/releases)
-2. Create an `Plugins` folder in your project directory if it doesn't exist
-3. Copy the plugin folder to `YourProject/Plugins/gx402-sdk`
-4. Restart the Unreal Editor
-5. Enable the plugin in Edit > Plugins > Project > gx402 SDK
+#### Installation
 
-#### Basic Integration
-```cpp
-#include "Gx402SDK.h"
+To install the gx402 SDK in your Unreal Engine project, you have two primary options:
 
-void AMyGameMode::StartPlay()
-{
-    Super::StartPlay();
-    
-    // Configure gx402
-    FGx402Config Config;
-    Config.ApiKey = TEXT("YOUR_API_KEY");
-    Config.bEnableRealtimeSync = true;
-    Config.LogLevel = EGx402LogLevel::Debug;
-    
-    // Initialize the SDK
-    UGx402Manager::Initialize(Config);
-    
-    UE_LOG(LogTemp, Log, TEXT("gx402 SDK initialized in Unreal Engine!"));
-}
+##### Download from Unreal Marketplace
+
+1.  Open the Unreal Engine Marketplace from within the Unreal Editor or your web browser.
+2.  Search for "GX402 Payment SDK".
+3.  Follow the instructions to download and add the plugin to your project.
+
+##### Clone Source
+
+1.  Open your terminal or command prompt.
+2.  Navigate to your project's `Plugins` directory (create it if it doesn't exist).
+3.  Clone the gx402 Unreal SDK repository: `git clone https://github.com/gx402/unreal-sdk.git`
+4.  Copy the cloned `gx402-sdk` folder into your project's `Plugins` directory.
+5.  Restart the Unreal Editor and enable the plugin in `Edit` > `Plugins`.
+
+#### Minimal Implementation Example (Blueprint)
+
+Here's a basic example of how to integrate the gx402 SDK into your Unreal Engine project using Blueprints to handle in-game purchases.
+
+```blueprint
+[Begin Play]
+    ↓
+[Create GX402 Client]
+    ↓
+    Receiver Address: OxYourAddress
+    Network: Base
+    ↓
+[On Button Click: Buy Sword]
+    ↓
+[Call: GX402 Purchase (Async)]
+    ↓
+    Item ID: "legendary_sword"
+    Price: 2.50
+    Currency: USDC
+    ↓
+[On Success]  ←  [Grant Item]  ←  [Show Success UI]
+[On Failure]  ←  [Show Error UI]
 ```
-
-#### Platform-Specific Features
-- Blueprint node integration
-- Native C++ performance
-- Rendering pipeline optimization
-- Platform-specific feature support
 
 </TabItem>
 
@@ -99,37 +141,49 @@ void AMyGameMode::StartPlay()
 ### WebGL Setup
 
 #### Installation
-Using NPM:
+
+Install the gx402 SDK using npm or yarn:
+
 ```bash
-npm install @gx402/web-sdk
+npm install @gx402/sdk
+# or
+yarn add @gx402/sdk
 ```
 
-Or via CDN:
-```html
-<script src="https://unpkg.com/@gx402/web-sdk/dist/gx402.min.js"></script>
-```
+#### Minimal Implementation Example
 
-#### Basic Integration
+Here's a basic example of how to integrate the gx402 SDK into your WebGL or web-based project, specifically for a Telegram Mini App, to handle in-game purchases.
+
 ```javascript
-import { Gx402SDK } from '@gx402/web-sdk';
+import { GX402Client } from '@gx402/sdk';
 
-// Initialize the SDK
-const gx402 = new Gx402SDK({
-  apiKey: 'YOUR_API_KEY',
-  enableRealtimeSync: true,
-  debug: true
+const gx402 = new GX402Client({
+    receiverAddress: 'OxYourWalletAddress',
+    network: 'base',
+    // Auto-detects Telegram environment
+    walletProvider: 'telegram',
 });
 
-// Wait for initialization
-await gx402.init();
-console.log('gx402 SDK initialized in WebGL!');
-```
+// Buy boost in game
+async function buyBoost() {
+    try {
+        const tx = await gx402.purchase({
+            itemId: 'speed_boost_10min',
+            price: '0.25', // $0.25
+            currency: 'USDC',
+        });
+        console.log('Payment successful:', tx.hash);
+        applyBoost('speed', 600); // 10 minutes
+    } catch (error) {
+        console.error('Payment failed:', error);
+        showToast('Payment failed. Please try again.');
+    }
+}
 
-#### Platform-Specific Features
-- WebAssembly optimization
-- Cross-browser compatibility
-- Progressive web app support
-- Web socket real-time sync
+// Placeholder functions - implement your actual game logic here
+function applyBoost(type, duration) { console.log(`Applying ${type} boost for ${duration} seconds.`); }
+function showToast(message) { console.log(`Toast: ${message}`); }
+```
 
 </TabItem>
 
@@ -137,53 +191,57 @@ console.log('gx402 SDK initialized in WebGL!');
 
 ### Mobile Setup
 
-#### iOS Installation (CocoaPods)
-```ruby
-pod 'Gx402SDK'
+#### Installation
+
+Install the gx402 SDK for React Native using npm or yarn:
+
+```bash
+npm install @gx402/react-native
+# or
+yarn add @gx402/react-native
 ```
 
-#### Android Installation (Gradle)
-```gradle
-implementation 'com.gx402:sdk:1.0.0'
+##### iOS Additional Setup
+
+After installing the npm package, navigate to your `ios` directory and install pods:
+
+```bash
+cd ios && pod install
 ```
 
-#### Basic Integration
+#### Minimal Implementation Example (React Native)
 
-**iOS (Swift):**
-```swift
-import Gx402SDK
+Here's a basic example of how to integrate the gx402 SDK into your React Native mobile application to handle in-game purchases.
 
-let config = Gx402Config(
-    apiKey: "YOUR_API_KEY",
-    environment: .production
-)
+```javascript
+import { GX402Client } from '@gx402/react-native';
 
-Gx402Manager.shared.initialize(with: config) { success, error in
-    if success {
-        print("gx402 SDK initialized on iOS!")
+const gx402 = new GX402Client({
+    receiverAddress: 'OxYourWalletAddress',
+    network: 'base',
+    // Auto-detects mobile environment
+});
+
+// Buy boost in game
+async function buyBoost() {
+    try {
+        const tx = await gx402.purchase({
+            itemId: 'speed_boost_10min',
+            price: '0.25', // $0.25
+            currency: 'USDC',
+        });
+        console.log('Payment successful:', tx.hash);
+        applyBoost('speed', 600); // 10 minutes
+    } catch (error) {
+        console.error('Payment failed:', error);
+        showToast('Payment failed. Please try again.');
     }
 }
+
+// Placeholder functions - implement your actual game logic here
+function applyBoost(type, duration) { console.log(`Applying ${type} boost for ${duration} seconds.`); }
+function showToast(message) { console.log(`Toast: ${message}`); }
 ```
-
-**Android (Kotlin):**
-```kotlin
-val config = Gx402Config.Builder()
-    .setApiKey("YOUR_API_KEY")
-    .setEnvironment(Gx402Config.ENVIRONMENT_PRODUCTION)
-    .build()
-
-Gx402SDK.initialize(this, config) { success, error ->
-    if (success) {
-        Log.d("gx402", "SDK initialized on Android!")
-    }
-}
-```
-
-#### Platform-Specific Features
-- Native performance optimization
-- Battery-conscious operation
-- Offline-first capabilities
-- Push notification integration
 
 </TabItem>
 
@@ -192,34 +250,49 @@ Gx402SDK.initialize(this, config) { success, error ->
 ### Telegram Setup
 
 #### Installation
+
+Install the gx402 SDK using npm or yarn:
+
 ```bash
-npm install @gx402/telegram-sdk
+npm install @gx402/sdk
+# or
+yarn add @gx402/sdk
 ```
 
-#### Basic Integration
+#### Minimal Implementation Example
+
+Here's a basic example of how to integrate the gx402 SDK into your Telegram Mini App to handle in-game purchases.
+
 ```javascript
-import { Gx402TelegramSDK } from '@gx402/telegram-sdk';
-import { Telegram } from '@twa-dev/sdk';
+import { GX402Client } from '@gx402/sdk';
 
-// Initialize Telegram Web Apps first
-const tg = window.Telegram.WebApp;
-
-// Initialize gx402 SDK with Telegram context
-const gx402 = new Gx402TelegramSDK({
-  apiKey: 'YOUR_API_KEY',
-  telegramWebApp: tg,
-  enableRealtimeSync: true
+const gx402 = new GX402Client({
+    receiverAddress: 'OxYourWalletAddress',
+    network: 'base',
+    // Auto-detects Telegram environment
+    walletProvider: 'telegram',
 });
 
-await gx402.init();
-console.log('gx402 SDK initialized in Telegram!');
-```
+// Buy boost in game
+async function buyBoost() {
+    try {
+        const tx = await gx402.purchase({
+            itemId: 'speed_boost_10min',
+            price: '0.25', // $0.25
+            currency: 'USDC',
+        });
+        console.log('Payment successful:', tx.hash);
+        applyBoost('speed', 600); // 10 minutes
+    } catch (error) {
+        console.error('Payment failed:', error);
+        showToast('Payment failed. Please try again.');
+    }
+}
 
-#### Platform-Specific Features
-- Telegram mini app integration
-- Native UI component support
-- Haptic feedback integration
-- Social sharing capabilities
+// Placeholder functions - implement your actual game logic here
+function applyBoost(type, duration) { console.log(`Applying ${type} boost for ${duration} seconds.`); }
+function showToast(message) { console.log(`Toast: ${message}`); }
+```
 
 </TabItem>
 
@@ -228,112 +301,48 @@ console.log('gx402 SDK initialized in Telegram!');
 ### Farcaster Setup
 
 #### Installation
+
+Install the gx402 SDK using npm or yarn:
+
 ```bash
-npm install @gx402/farcaster-sdk
+npm install @gx402/sdk
+# or
+yarn add @gx402/sdk
 ```
 
-#### Basic Integration
-```javascript
-import { Gx402FarcasterSDK } from '@gx402/farcaster-sdk';
+#### Minimal Implementation Example
 
-const gx402 = new Gx402FarcasterSDK({
-  apiKey: 'YOUR_API_KEY',
-  enableRealtimeSync: true
+Here's a basic example of how to integrate the gx402 SDK into your Farcaster application to handle in-game purchases.
+
+```javascript
+import { GX402Client } from '@gx402/sdk';
+
+const gx402 = new GX402Client({
+    receiverAddress: 'OxYourWalletAddress',
+    network: 'base',
+    // Auto-detects Farcaster environment
 });
 
-await gx402.init();
-console.log('gx402 SDK initialized in Farcaster!');
-```
+// Buy boost in game
+async function buyBoost() {
+    try {
+        const tx = await gx402.purchase({
+            itemId: 'speed_boost_10min',
+            price: '0.25', // $0.25
+            currency: 'USDC',
+        });
+        console.log('Payment successful:', tx.hash);
+        applyBoost('speed', 600); // 10 minutes
+    } catch (error) {
+        console.error('Payment failed:', error);
+        showToast('Payment failed. Please try again.');
+    }
+}
 
-#### Platform-Specific Features
-- Farcaster frame integration
-- Cast synchronization
-- Web3 identity support
-- Decentralized social features
+// Placeholder functions - implement your actual game logic here
+function applyBoost(type, duration) { console.log(`Applying ${type} boost for ${duration} seconds.`); }
+function showToast(message) { console.log(`Toast: ${message}`); }
+```
 
 </TabItem>
 </Tabs>
-
-## Core Concepts (Same Across All Platforms)
-
-Once you've set up your platform, the core concepts remain consistent:
-
-### Authentication
-```javascript
-// Works similarly across all platforms
-await gx402.authenticate('user-id', 'auth-token');
-```
-
-### x402 Processing
-```javascript
-// Process game data with x402 functionality
-const result = await gx402.processX402Data(gameData);
-```
-
-### Real-time Sync
-```javascript
-// Sync data across platforms
-gx402.subscribe('game-state', (data) => {
-  updateGameState(data);
-});
-
-await gx402.sync('game-state', gameState);
-```
-
-## Development Workflow
-
-### 1. Environment Setup
-- Create a project in your [gx402 Dashboard](https://gx402.com/dashboard)
-- Get your API keys for development and production
-- Install the SDK for your chosen platform
-
-### 2. Basic Integration
-- Initialize the SDK early in your game startup
-- Authenticate users if needed
-- Test basic x402 functionality
-
-### 3. Feature Development
-- Add specific x402 features to your gameplay
-- Implement real-time synchronization
-- Add platform-specific enhancements
-
-### 4. Testing
-- Test on target devices/emulators
-- Verify cross-platform sync works
-- Check offline capabilities
-
-### 5. Deployment
-- Switch to production API keys
-- Optimize performance settings
-- Monitor in production
-
-## Best Practices
-
-### Cross-Platform Considerations
-- Design features that work well on all platforms
-- Account for different performance capabilities
-- Handle platform-specific user interface patterns
-- Plan for different input methods
-
-### Performance Optimization
-- Minimize network calls during gameplay
-- Use appropriate sync intervals
-- Optimize for mobile network conditions
-- Implement efficient data structures
-
-### Security
-- Securely store API keys
-- Implement proper authentication
-- Validate all client data on server
-- Protect against cheating
-
-## Next Steps
-
-Now that you've set up the gx402 SDK on your chosen platform:
-
-1. **Explore Core Features**: Check out our [Features documentation](/features) to understand x402 capabilities
-2. **Follow Tutorials**: Complete our [Hello World tutorial](/tutorials/hello-world) to build your first x402-powered game
-3. **Dive Deeper**: Read platform-specific guides for advanced functionality
-4. **Join Community**: Connect with other developers in our [Discord community](https://discord.gg/gx402)
-
-The gx402 SDK is designed to make cross-platform game development simpler while providing powerful x402 functionality. Start with basic integration and gradually add more features as needed for your game!

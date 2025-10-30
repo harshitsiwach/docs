@@ -5,7 +5,7 @@
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
-    "dark": "#15803D"
+    "dark": "#36454f"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -18,7 +18,8 @@
             "pages": [
               "index",
               "quickstart",
-              "what-is-gx402"
+              "what-is-gx402",
+              "why-gx402"
             ]
           },
           {
@@ -51,7 +52,16 @@
               "features/x402-integration",
               "features/real-time-sync",
               "features/data-management",
-              "features/security"
+              "features/security",
+              "features/genre-templates",
+              "features/advanced-gaming-mechanics"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "roadmap",
+              "pricing"
             ]
           }
         ]
@@ -84,7 +94,8 @@
             "pages": [
               "community/showcase",
               "community/contributing",
-              "community/support"
+              "community/support",
+              "glossary"
             ]
           }
         ]

@@ -5,11 +5,11 @@ description: "API reference for gx402 SDK core functionality"
 
 ## Core Functions API
 
-The core functions of the gx402 SDK provide the essential x402 functionality for games.
+The core functions of the gx402 SDK provide the essential x402 functionality for games, focusing on seamless payment processing and multi-chain integration.
 
 ## initialize()
 
-Initialize the gx402 SDK with configuration options.
+Initialize the gx402 SDK with configuration options. This sets up the necessary infrastructure for x402 payment processing and multi-chain support.
 
 ### JavaScript/WebGL
 ```javascript
@@ -28,8 +28,6 @@ await gx402.init();
 - `environment` (string): 'production' or 'development' (default: 'production')
 - `enableRealtimeSync` (boolean): Enable real-time synchronization (default: false)
 - `debug` (boolean): Enable debug logging (default: false)
-- `syncInterval` (number): Sync interval in milliseconds (default: 1000)
-- `encryption` (boolean): Enable data encryption (default: true)
 
 ### Unity (C#)
 ```csharp
@@ -53,7 +51,7 @@ UGx402Manager::Initialize(Config);
 
 ## processX402Data()
 
-Process game data with x402 functionality.
+Process game data with x402 functionality. This function leverages the built-in x402 facilitator infrastructure to handle micropayments and other x402 protocol interactions.
 
 ### JavaScript
 ```javascript
@@ -94,200 +92,10 @@ var x402Result = Gx402Manager.ProcessX402Data(gameData);
 FGx402Result Result = UGx402Manager::ProcessX402Data(GameData);
 ```
 
-## sync()
+## Multi-chain Support
 
-Synchronize data across platforms.
+The gx402 SDK is designed with multi-chain support, accommodating both EVM (Ethereum Virtual Machine) and non-EVM blockchains. This ensures flexibility and broad compatibility for your game's payment infrastructure.
 
-### JavaScript
-```javascript
-// Sync specific data
-await gx402.sync('game-state', gameState);
+## Built-in x402 Facilitator Infrastructure
 
-// Sync with options
-await gx402.sync('game-state', gameState, {
-  strategy: 'optimistic',  // 'optimistic' or 'pessimistic'
-  timeout: 5000,          // ms
-  retry: 3               // number of retries
-});
-```
-
-#### Parameters
-- `key` (string): Data identifier
-- `data` (any): Data to synchronize
-- `options` (Object, optional): Sync options
-
-#### Options
-- `strategy` (string): 'optimistic' or 'pessimistic' (default: 'optimistic')
-- `timeout` (number): Request timeout in milliseconds (default: 5000)
-- `retry` (number): Number of retry attempts (default: 3)
-
-#### Returns
-- `Promise<Object>`: Sync result with status and metadata
-
-## subscribe()
-
-Subscribe to real-time data updates.
-
-### JavaScript
-```javascript
-// Subscribe to data changes
-gx402.subscribe('game-state', (data) => {
-  console.log('Game state updated:', data);
-});
-
-// Subscribe with filter
-gx402.subscribe('player-updates', { playerId: '123' }, (data) => {
-  console.log('Player 123 updated:', data);
-});
-```
-
-#### Parameters
-- `channel` (string): Channel to subscribe to
-- `filter` (Object, optional): Filter for specific updates
-- `callback` (Function): Function to call with updates
-
-## unsubscribe()
-
-Unsubscribe from real-time updates.
-
-### JavaScript
-```javascript
-// Unsubscribe from a channel
-gx402.unsubscribe('game-state');
-
-// Unsubscribe with filter
-gx402.unsubscribe('player-updates', { playerId: '123' });
-```
-
-#### Parameters
-- `channel` (string): Channel to unsubscribe from
-- `filter` (Object, optional): Filter to match unsubscribe
-
-## query()
-
-Query stored data.
-
-### JavaScript
-```javascript
-// Query all players with level > 10
-const highLevelPlayers = await gx402.query('player', {
-  where: { level: { $gte: 10 } },
-  limit: 10,
-  orderBy: { level: 'desc' }
-});
-```
-
-#### Parameters
-- `model` (string): Data model to query
-- `query` (Object): Query parameters
-  - `where` (Object): Filter conditions
-  - `limit` (number): Maximum results
-  - `orderBy` (Object): Sort order
-  - `offset` (number): Offset for pagination
-
-#### Returns
-- `Promise<Array>`: Query results
-
-## create()
-
-Create new data records.
-
-### JavaScript
-```javascript
-const newPlayer = await gx402.create('player', {
-  name: 'New Player',
-  level: 1,
-  score: 0
-});
-```
-
-#### Parameters
-- `model` (string): Data model to create
-- `data` (Object): Data to create
-
-#### Returns
-- `Promise<Object>`: Created record with ID
-
-## update()
-
-Update existing data records.
-
-### JavaScript
-```javascript
-await gx402.update('player', playerId, {
-  $inc: { score: 100 },
-  $set: { lastPlayed: new Date() }
-});
-```
-
-#### Parameters
-- `model` (string): Data model to update
-- `id` (string): Record ID to update
-- `updates` (Object): Update operations
-
-#### Returns
-- `Promise<Object>`: Update result
-
-## delete()
-
-Delete data records.
-
-### JavaScript
-```javascript
-await gx402.delete('player', playerId);
-```
-
-#### Parameters
-- `model` (string): Data model to delete from
-- `id` (string): Record ID to delete
-
-#### Returns
-- `Promise<Object>`: Delete result
-
-## configure()
-
-Update SDK configuration at runtime.
-
-### JavaScript
-```javascript
-gx402.configure({
-  enableRealtimeSync: true,
-  syncInterval: 500,
-  debug: true
-});
-```
-
-#### Parameters
-- `config` (Object): Configuration options to update
-
-## Events
-
-### on()
-
-Subscribe to SDK events.
-
-```javascript
-gx402.on('sync-started', (syncId) => {
-  console.log('Sync started:', syncId);
-});
-
-gx402.on('x402-process-complete', (data) => {
-  console.log('x402 processing completed:', data);
-});
-```
-
-#### Parameters
-- `event` (string): Event name to subscribe to
-- `callback` (Function): Function to call when event occurs
-
-### off()
-
-Unsubscribe from SDK events.
-
-```javascript
-gx402.off('sync-started', callbackFunction);
-```
-
-#### Parameters
-- `event` (string): Event name
-- `callback` (Function): Callback function to remove
+The SDK includes a built-in x402 facilitator infrastructure that handles the complexities of the x402 payment protocol. This allows developers to integrate micropayments without needing deep blockchain knowledge.
